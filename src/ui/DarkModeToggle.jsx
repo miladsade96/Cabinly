@@ -5,7 +5,7 @@ import {useDarkMode} from "../context/DarkModeContext.jsx";
 export default function DarkModeToggle() {
 	const {isDarkMode, toggleDarkMode} = useDarkMode();
 	return (
-		<ButtonIcon onClick={toggleDarkMode}>
+		<ButtonIcon aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"} onClick={toggleDarkMode}>
 			{isDarkMode ? <HiOutlineSun /> : <HiOutlineMoon />}
 		</ButtonIcon>
 	);

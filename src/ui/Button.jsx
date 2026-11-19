@@ -1,5 +1,4 @@
 import styled, {css} from "styled-components";
-import PropTypes from "prop-types";
 
 const sizes = {
 	small: css`
@@ -54,30 +53,10 @@ const StyledButton = styled.button`
 	border-radius: var(--border-radius-sm);
 	box-shadow: var(--shadow-sm);
 
-	${props => sizes[props.size]}
-	${props => variations[props.variation]}
+	${props => sizes[props.$size]}
+	${props => variations[props.$variation]}
 `;
 
-export default function Button({
-	variation = "primary",
-	size = "medium",
-	onClick = () => {},
-	children = "Button" || PropTypes.node,
-}) {
-	return (
-		<StyledButton variation={variation} size={size} onClick={onClick}>
-			{children}
-		</StyledButton>
-	);
+export default function Button({ variation = "primary", size = "medium", children, ...props }) {
+ return <StyledButton $variation={variation} $size={size} {...props}>{children}</StyledButton>;
 }
-
-const options = {
-	variations: ["primary", "secondary", "danger"],
-	sizes: ["small", "medium", "large"],
-};
-
-Button.propTypes = {
-	variation: PropTypes.oneOf(options.variations),
-	size: PropTypes.oneOf(options.sizes),
-	children: PropTypes.string.isRequired,
-};
