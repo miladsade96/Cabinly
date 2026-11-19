@@ -2,7 +2,7 @@ import styled from "styled-components";
 import Tag from "../../ui/Tag.jsx";
 import {Flag} from "../../ui/Flag.jsx";
 import Button from "../../ui/Button.jsx";
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import CheckoutButton from "./CheckoutButton.jsx";
 
 const StyledTodayItem = styled.li`
@@ -11,6 +11,7 @@ const StyledTodayItem = styled.li`
 	gap: 1.2rem;
 	align-items: center;
 
+	@media(max-width:600px){grid-template-columns:auto 2rem minmax(0,1fr); & > :nth-child(4){grid-column:1 / 3;} & > button{justify-self:start;}}
 	font-size: 1.4rem;
 	padding: 0.8rem 0;
 	border-bottom: 1px solid var(--color-grey-100);
@@ -31,7 +32,7 @@ export default function TodayItem({activity}) {
 		<StyledTodayItem>
 			{status === "unconfirmed" && <Tag type="green">Arriving</Tag>}
 			{status === "checked-in" && <Tag type="blue">Departing</Tag>}
-			<Flag src={guests.countryFlag} alt={`Flag of ${guests.country}`} />
+			<Flag src={guests.countryFlag} alt={guests.nationality ? `Flag of ${guests.nationality}` : "Guest country flag"} />
 			<Guest>{guests.fullName}</Guest>
 			<div>{numNights} nights</div>
 			{status === "unconfirmed" && (

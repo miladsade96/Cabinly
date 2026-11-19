@@ -45,11 +45,11 @@ export default function SalesChart({bookings, numDays}) {
 		  };
 	return (
 		<StyledSalesChart>
-			<ResponsiveContainer height={300} width="100%">
-				<Heading as="h2">
+			<Heading as="h2">
 					Sales from {format(allDates.at(0), "MMM dd yyyy")} &mdash;{" "}
 					{format(allDates.at(-1), "MMM dd yyyy")}{" "}
 				</Heading>
+            <ResponsiveContainer height={300} width="100%">
 				<AreaChart data={data}>
 					<XAxis dataKey="label" tick={{fill: colors.text}} tickLine={{stroke: colors.text}} />
 					<YAxis unit="$" tick={{fill: colors.text}} tickLine={{stroke: colors.text}} />

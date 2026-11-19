@@ -9,10 +9,10 @@ import {formatCurrency} from "../../utils/helpers.js";
 
 export default function Stats({bookings, confirmedStays, numDays, cabinCount}) {
 	const numBookings = bookings.length;
-	const sales = bookings.reduce((acc, cur) => acc + cur.totalPrice, 0);
+	const sales = bookings.reduce((acc, cur) => acc + Number(cur.totalPrice || 0), 0);
 	const checkins = confirmedStays.length;
 	const occupation =
-		confirmedStays.reduce((acc, cur) => acc + cur.numNights, 0) / (numDays * cabinCount);
+		(numDays > 0 && cabinCount > 0 ? Math.min(1, confirmedStays.reduce((acc, cur) => acc + cur.numNights, 0) / (numDays * cabinCount)) : 0);
 	return (
 		<>
 			<Stat title="Bookings" color="blue" icon={<HiOutlineBriefcase />} value={numBookings} />

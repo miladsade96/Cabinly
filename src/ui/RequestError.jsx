@@ -1,0 +1,2 @@
+import Button from "./Button.jsx";
+export default function RequestError({ message = "This page could not be loaded. Please try again.", onRetry }) { return <section role="alert" style={{ padding: "2.4rem", border: "1px solid var(--color-grey-200)", borderRadius: 8, background: "var(--color-grey-0)" }}><p style={{ marginBottom: "1.6rem" }}>{message}</p>{onRetry && <Button type="button" onClick={onRetry}>Try again</Button>}</section>; }

@@ -19,6 +19,7 @@ const StyledBookingDataBox = styled.section`
 	border-radius: var(--border-radius-md);
 
 	overflow: hidden;
+ @media(max-width:600px){ & > header{flex-direction:column;align-items:flex-start;gap:1.2rem;padding:2rem;} & > section{padding:2rem;} & > footer{padding:1.6rem 2rem;} }
 `;
 
 const Header = styled.header`
@@ -60,6 +61,8 @@ const Guest = styled.div`
 	align-items: center;
 	gap: 1.2rem;
 	margin-bottom: 1.6rem;
+ flex-wrap:wrap;
+ overflow-wrap:anywhere;
 	color: var(--color-grey-500);
 
 	& p:first-of-type {
@@ -75,10 +78,13 @@ const Price = styled.div`
 	padding: 1.6rem 3.2rem;
 	border-radius: var(--border-radius-sm);
 	margin-top: 2.4rem;
+ flex-wrap:wrap;
+ gap:1rem;
+ @media(max-width:600px){padding:1.6rem;}
 
 	background-color: ${props =>
-		props.isPaid ? "var(--color-green-100)" : "var(--color-yellow-100)"};
-	color: ${props => (props.isPaid ? "var(--color-green-700)" : "var(--color-yellow-700)")};
+		props.$isPaid ? "var(--color-green-100)" : "var(--color-yellow-100)"};
+	color: ${props => (props.$isPaid ? "var(--color-green-700)" : "var(--color-yellow-700)")};
 
 	& p:last-child {
 		text-transform: uppercase;
@@ -114,7 +120,7 @@ function BookingDataBox({booking}) {
 		hasBreakfast,
 		observations,
 		isPaid,
-		guests: {fullName: guestName, email, country, countryFlag, nationalID},
+		guests: {fullName: guestName, email, nationality, countryFlag, nationalID},
 		cabins: {name: cabinName},
 	} = booking;
 
@@ -137,7 +143,7 @@ function BookingDataBox({booking}) {
 
 			<Section>
 				<Guest>
-					{countryFlag && <Flag src={countryFlag} alt={`Flag of ${country}`} />}
+					{countryFlag && <Flag src={countryFlag} alt={nationality ? `Flag of ${nationality}` : "Guest country flag"} />}
 					<p>
 						{guestName} {numGuests > 1 ? `+ ${numGuests - 1} guests` : ""}
 					</p>
@@ -157,7 +163,7 @@ function BookingDataBox({booking}) {
 					{hasBreakfast ? "Yes" : "No"}
 				</DataItem>
 
-				<Price isPaid={isPaid}>
+				<Price $isPaid={isPaid}>
 					<DataItem icon={<HiOutlineCurrencyDollar />} label={`Total price`}>
 						{formatCurrency(totalPrice)}
 
