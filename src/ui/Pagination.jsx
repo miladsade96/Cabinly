@@ -1,3 +1,4 @@
+import { bookingPage } from "../services/validation.js";
 import styled from "styled-components";
 import {HiChevronLeft, HiChevronRight} from "react-icons/hi2";
 import {useSearchParams} from "react-router-dom";
@@ -8,6 +9,7 @@ const StyledPagination = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+ flex-wrap: wrap; gap: 1.6rem;
 `;
 
 const P = styled.p`
@@ -22,6 +24,7 @@ const P = styled.p`
 const Buttons = styled.div`
 	display: flex;
 	gap: 0.6rem;
+ flex-wrap: wrap;
 `;
 
 const PaginationButton = styled.button`
@@ -60,17 +63,15 @@ const PaginationButton = styled.button`
 
 export default function Pagination({count}) {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const currentPage = !searchParams.get("page") ? 1 : Number(searchParams.get("page"));
-	const pageCount = Math.ceil(count / PAGE_SIZE);
+	const currentPage = Math.min(bookingPage(searchParams.get("page")), Math.max(1, Math.ceil((count || 0) / PAGE_SIZE)));
+	const pageCount = Math.ceil((count || 0) / PAGE_SIZE);
 	function nextPage() {
-		const next = currentPage === pageCount ? currentPage : currentPage + 1;
-		searchParams.set("page", next);
-		setSearchParams(searchParams);
+		const next = Math.min(pageCount, currentPage + 1);
+		const updated = new URLSearchParams(searchParams); updated.set("page", next); setSearchParams(updated);
 	}
 	function prevPage() {
-		const prev = currentPage === 1 ? currentPage : currentPage - 1;
-		searchParams.set("page", prev);
-		setSearchParams(searchParams);
+		const prev = Math.max(1, currentPage - 1);
+		const updated = new URLSearchParams(searchParams); updated.set("page", prev); setSearchParams(updated);
 	}
 
 	if (pageCount <= 1) return null;

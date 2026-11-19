@@ -1,3 +1,4 @@
+import { useUser } from "../features/authentication/useUser.js";
 import styled from "styled-components";
 import {NavLink} from "react-router-dom";
 import {
@@ -54,6 +55,7 @@ const StyledNavLink = styled(NavLink)`
 `;
 
 export default function MainNav() {
+  const { isAdmin } = useUser();
 	return (
 		<nav>
 			<NavList>
@@ -75,12 +77,12 @@ export default function MainNav() {
 						<span>Cabins</span>
 					</StyledNavLink>
 				</li>
-				<li>
+{isAdmin && (				<li>
 					<StyledNavLink to="/users">
 						<HiOutlineUsers />
 						<span>Users</span>
 					</StyledNavLink>
-				</li>
+				</li>)}
 				<li>
 					<StyledNavLink to="/settings">
 						<HiOutlineCog6Tooth />

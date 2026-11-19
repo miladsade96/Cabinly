@@ -1,3 +1,4 @@
+import { cloneElement, isValidElement } from "react";
 import styled from "styled-components";
 
 const StyledFormRow = styled.div`
@@ -5,6 +6,7 @@ const StyledFormRow = styled.div`
 	align-items: center;
 	grid-template-columns: 24rem 1fr 1.2fr;
 	gap: 2.4rem;
+ @media(max-width:900px){grid-template-columns:1fr;gap:.8rem;}
 
 	padding: 1.2rem 0;
 
@@ -40,8 +42,8 @@ export default function FormRow({label, error, children}) {
 	return (
 		<StyledFormRow>
 			{label && <Label htmlFor={children.props.id}>{label}</Label>}
-			{children}
-			{error && <Error>{error}</Error>}
+			{isValidElement(children) ? cloneElement(children, { "aria-invalid": !!error, "aria-describedby": error ? `${children.props.id}-error` : undefined }) : children}
+			{error && <Error role="alert" id={`${children?.props?.id}-error`}>{error}</Error>}
 		</StyledFormRow>
 	);
 }

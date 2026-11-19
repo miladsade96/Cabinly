@@ -8,6 +8,7 @@ const StyledFilter = styled.div`
 	border-radius: var(--border-radius-sm);
 	padding: 0.4rem;
 	display: flex;
+	flex-wrap: wrap;
 	gap: 0.4rem;
 `;
 
@@ -16,7 +17,7 @@ const FilterButton = styled.button`
 	border: none;
 
 	${props =>
-		props.active &&
+		props.$active &&
 		css`
 			background-color: var(--color-brand-600);
 			color: var(--color-brand-50);
@@ -37,13 +38,15 @@ const FilterButton = styled.button`
 
 export default function Filter({filterField, options}) {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const currentFilter = searchParams.get(filterField) || options.at(0).value;
+	const raw = searchParams.get(filterField);
+ const currentFilter = options.some((option) => option.value === raw) ? raw : options[0].value;
 	function handleClick(value) {
-		searchParams.set(filterField, value);
-		if (searchParams.get("page")) {
-			searchParams.set("page", 1);
+		const updated = new URLSearchParams(searchParams);
+        updated.set(filterField, value);
+		if (updated.get("page")) {
+			updated.set("page", 1);
 		}
-		setSearchParams(searchParams);
+		setSearchParams(updated);
 	}
 
 	return (
@@ -51,7 +54,7 @@ export default function Filter({filterField, options}) {
 			{options.map(option => (
 				<FilterButton
 					key={option.label}
-					active={option.value === currentFilter ? 1 : 0}
+					$active={option.value === currentFilter} aria-pressed={option.value === currentFilter}
 					disabled={option.value === currentFilter}
 					onClick={() => handleClick(option.value)}>
 					{option.label}

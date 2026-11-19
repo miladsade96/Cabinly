@@ -19,7 +19,9 @@ const Form = styled.form`
 		`}
     
   overflow: hidden;
-	font-size: 1.4rem;
+	font-size: 1.6rem;
+ max-width:100%;
+ @media(max-width:900px){width:100%;padding:2rem;}
 `;
 
 Form.defaultProps = {type: "regular"};

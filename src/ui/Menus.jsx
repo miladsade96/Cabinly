@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {createContext, useContext, useState} from "react";
+import {createContext, useContext, useState, useEffect} from "react";
 import {HiEllipsisVertical} from "react-icons/hi2";
 import {createPortal} from "react-dom";
 import {useOutsideClick} from "../hooks/useOutsideClick.js";
@@ -36,8 +36,8 @@ const StyledList = styled.ul`
 	box-shadow: var(--shadow-md);
 	border-radius: var(--border-radius-md);
 
-	right: ${props => props.position.x}px;
-	top: ${props => props.position.y}px;
+	right: ${props => props.$position.x}px;
+	top: ${props => props.$position.y}px;
 `;
 
 const StyledButton = styled.button`
@@ -90,7 +90,7 @@ function Toggle({id}) {
 	}
 
 	return (
-		<StyledToggle onClick={handleClick}>
+		<StyledToggle type="button" aria-label="Open row actions" aria-expanded={openId === id} onClick={handleClick}>
 			<HiEllipsisVertical />
 		</StyledToggle>
 	);
@@ -99,9 +99,10 @@ function Toggle({id}) {
 function List({id, children}) {
 	const {openId, close, position} = useContext(MenusContext);
 	const ref = useOutsideClick(close, false);
+ useEffect(() => { if (openId !== id) return; const key = (event) => { if (event.key === "Escape") close(); }; document.addEventListener("keydown", key); return () => document.removeEventListener("keydown", key); }, [openId, id, close]);
 	if (openId !== id) return null;
 	return createPortal(
-		<StyledList ref={ref} position={position}>
+		<StyledList ref={ref} $position={position}>
 			{children}
 		</StyledList>,
 		document.body,
@@ -116,7 +117,7 @@ function Button({children, icon, onClick}) {
 	}
 	return (
 		<li>
-			<StyledButton onClick={handleClick}>
+			<StyledButton type="button" onClick={handleClick}>
 				{icon} <span>{children}</span>
 			</StyledButton>
 		</li>
