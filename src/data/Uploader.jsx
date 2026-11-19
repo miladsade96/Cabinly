@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {isFuture, isPast, isToday} from "date-fns";
-import supabase from "../services/supabase";
+import supabase, { supabaseUrl } from "../services/supabase";
 import Button from "../ui/Button";
 import {subtractDates} from "../utils/helpers";
 
@@ -89,6 +89,7 @@ function Uploader() {
 	const [isLoading, setIsLoading] = useState(false);
 
 	async function uploadAll() {
+        if (!import.meta.env.DEV || !["localhost", "127.0.0.1"].includes(new URL(supabaseUrl).hostname)) throw new Error("Sample resets are restricted to local Supabase.");
 		setIsLoading(true);
 		// Bookings need to be deleted FIRST
 		await deleteBookings();
@@ -104,6 +105,7 @@ function Uploader() {
 	}
 
 	async function uploadBookings() {
+        if (!import.meta.env.DEV || !["localhost", "127.0.0.1"].includes(new URL(supabaseUrl).hostname)) throw new Error("Sample resets are restricted to local Supabase.");
 		setIsLoading(true);
 		await deleteBookings();
 		await createBookings();
