@@ -1,13 +1,13 @@
-import supabase, {supabaseUrl} from "./supabase.js";
+import { isAdmin, imageFile } from "./validation.js";
+import supabase from "./supabase.js";
 
-export async function signup({fullName, email, password}) {
-	const {data, error} = await supabase.auth.signUp({
-		email,
-		password,
-		options: {data: {fullName, avatar: ""}},
-	});
-	if (error) throw new Error(error.message);
-	return data;
+export async function signup({ fullName, email }) {
+ const user = await getCurrentUser();
+ if (!isAdmin(user)) throw new Error("Only administrators can invite staff.");
+ if (!fullName?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email || "")) throw new Error("Enter a name and valid email address.");
+ const { data, error } = await supabase.functions.invoke("invite-staff", { body: { fullName: fullName.trim(), email: email.trim() } });
+ if (error || data?.error) throw new Error("The invitation could not be sent. Please try again.");
+ return data;
 }
 
 export async function login({email, password}) {
@@ -36,23 +36,25 @@ export async function logout() {
 	if (error) throw new Error(error.message);
 }
 
-export async function updateCurrentUser({fullName, password, avatar}) {
-	let updateData;
-	if (password) updateData = {password};
-	if (fullName) updateData = {data: {fullName}};
-	const {data, error} = await supabase.auth.updateUser(updateData);
-	if (error) throw new Error(error.message);
-	if (!avatar) return data;
-
-	const fileName = `avatar-${data.user.id}-${Math.random()}`;
-	const {error: storageError} = await supabase.storage.from("avatars").upload(fileName, avatar);
-	if (storageError) throw new Error(storageError.message);
-
-	const {data: updatedUser, error: otherErrors} = await supabase.auth.updateUser({
-		data: {
-			avatar: `${supabaseUrl}/storage/v1/object/public/avatars/${fileName}`,
-		},
-	});
-	if (otherErrors) throw new Error(otherErrors.message);
-	return updatedUser;
+export async function updateCurrentUser({ fullName, password, avatar }) {
+ const current = await getCurrentUser();
+ if (!current) throw new Error("Please sign in to continue.");
+ const values = {};
+ if (password !== undefined) { if (password.length < 8) throw new Error("Use a password with at least 8 characters."); values.password = password; }
+ if (fullName !== undefined) { if (!fullName.trim()) throw new Error("Enter your full name."); values.data = { ...current.user_metadata, fullName: fullName.trim() }; }
+ let uploadedPath;
+ if (avatar) {
+  const file = imageFile(avatar);
+  uploadedPath = `${current.id}/${crypto.randomUUID()}.${{ "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" }[file.type]}`;
+  const { error } = await supabase.storage.from("avatars").upload(uploadedPath, file, { upsert: false, contentType: file.type });
+  if (error) throw new Error("Your avatar could not be uploaded.");
+  values.data = { ...current.user_metadata, ...values.data, avatar: supabase.storage.from("avatars").getPublicUrl(uploadedPath).data.publicUrl };
+ }
+ if (!Object.keys(values).length) return { user: current };
+ const { data, error } = await supabase.auth.updateUser(values);
+ if (error) {
+  if (uploadedPath) await supabase.storage.from("avatars").remove([uploadedPath]).catch(() => undefined);
+  throw new Error("Your account could not be updated. Please try again.");
+ }
+ return data;
 }

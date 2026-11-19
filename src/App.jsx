@@ -1,22 +1,26 @@
+import AuthSessionSync from "./features/authentication/AuthSessionSync.jsx";
+import { lazy, Suspense } from "react";
+import { isSupabaseConfigured } from "./services/supabase.js";
+import SetupNotice from "./ui/SetupNotice.jsx";
+import Spinner from "./ui/Spinner.jsx";
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 
 import GlobalStyles from "./styles/GlobalStyles.js";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 import {Toaster} from "react-hot-toast";
 import {DarkModeProvider} from "./context/DarkModeContext.jsx";
 import ProtectedRoute from "./ui/ProtectedRoute.jsx";
 import AppLayout from "./ui/AppLayout.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import Bookings from "./pages/Bookings.jsx";
-import Booking from "./pages/Booking.jsx";
-import CheckIn from "./pages/CheckIn.jsx";
-import Cabins from "./pages/Cabins.jsx";
-import Users from "./pages/Users.jsx";
-import Settings from "./pages/Settings.jsx";
-import Login from "./pages/Login.jsx";
-import PageNotFound from "./pages/PageNotFound.jsx";
-import Account from "./pages/Account.jsx";
+const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
+const Bookings = lazy(() => import("./pages/Bookings.jsx"));
+const Booking = lazy(() => import("./pages/Booking.jsx"));
+const CheckIn = lazy(() => import("./pages/CheckIn.jsx"));
+const Cabins = lazy(() => import("./pages/Cabins.jsx"));
+const Users = lazy(() => import("./pages/Users.jsx"));
+const Settings = lazy(() => import("./pages/Settings.jsx"));
+const Login = lazy(() => import("./pages/Login.jsx"));
+const PageNotFound = lazy(() => import("./pages/PageNotFound.jsx"));
+const Account = lazy(() => import("./pages/Account.jsx"));
 import {ErrorBoundary} from "react-error-boundary";
 import ErrorFallback from "./ui/ErrorFallback.jsx";
 
@@ -28,19 +32,16 @@ const queryClient = new QueryClient({
 	},
 });
 
-function handleErrorBoundaryError() {
-	setTimeout(() => window.location.replace("/"), 3000);
-}
-
 export default function App() {
+  if (!isSupabaseConfigured) return <SetupNotice />;
 	return (
 		<DarkModeProvider>
 			<QueryClientProvider client={queryClient}>
-				<ReactQueryDevtools initialIsOpen={false} />
+                <AuthSessionSync />
 				<GlobalStyles />
 				<BrowserRouter>
-					<ErrorBoundary FallbackComponent={ErrorFallback} onError={handleErrorBoundaryError}>
-						<Routes>
+					<ErrorBoundary FallbackComponent={ErrorFallback}>
+						<Suspense fallback={<Spinner />}><Routes>
 							<Route
 								element={
 									<ProtectedRoute>
@@ -59,7 +60,7 @@ export default function App() {
 							</Route>
 							<Route path="login" element={<Login />} />
 							<Route path="*" element={<PageNotFound />} />
-						</Routes>
+						</Routes></Suspense>
 					</ErrorBoundary>
 				</BrowserRouter>
 				<Toaster

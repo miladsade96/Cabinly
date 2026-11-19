@@ -33,15 +33,15 @@ const Box = styled.div`
 	}
 `;
 
-export default function ErrorFallback({error}) {
+export default function ErrorFallback({resetErrorBoundary}) {
 	return (
 		<>
 			<GlobalStyles />
 			<StyledErrorFallback>
 				<Box>
 					<Heading as="h1">Something went wrong</Heading>
-					<p>{error.message}</p>
-					<p>You will get back to the dashboard soon!</p>
+					<p>This page could not be loaded. Please try again.</p>
+					<button type="button" onClick={resetErrorBoundary}>Try again</button>
 				</Box>
 			</StyledErrorFallback>
 		</>

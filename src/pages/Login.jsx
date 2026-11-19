@@ -6,7 +6,8 @@ import Heading from "../ui/Heading.jsx";
 const LoginLayout = styled.main`
 	min-height: 100vh;
 	display: grid;
-	grid-template-columns: 48rem;
+	grid-template-columns:min(48rem,100%);
+ padding:2.4rem;
 	align-content: center;
 	justify-content: center;
 	gap: 3.2rem;
@@ -17,7 +18,7 @@ function Login() {
 	return (
 		<LoginLayout>
 			<Logo />
-			<Heading as="h4">Log into your account</Heading>
+			<Heading as="h1">Log into your account</Heading>
 			<LoginForm />
 		</LoginLayout>
 	);

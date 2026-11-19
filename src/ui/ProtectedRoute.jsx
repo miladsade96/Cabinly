@@ -1,35 +1,15 @@
-import {useUser} from "../features/authentication/useUser.js";
+import { Navigate } from "react-router-dom";
+import { useUser } from "../features/authentication/useUser.js";
+import { useLogout } from "../features/authentication/useLogout.js";
 import Spinner from "./Spinner.jsx";
-import styled from "styled-components";
-import {useNavigate} from "react-router-dom";
-import {useEffect} from "react";
-
-const FullPage = styled.div`
-	height: 100vh;
-	background-color: var(--color-grey-50);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-`;
-
-export default function ProtectedRoute({children}) {
-	const navigate = useNavigate();
-	// 1. Load the authenticated user
-	const {isAuthenticated, isLoading} = useUser();
-
-	// 2. If there is no authenticated user, redirect to /login page
-	useEffect(() => {
-		if (!isAuthenticated && !isLoading) navigate("/login");
-	}, [isLoading, isAuthenticated, navigate]);
-
-	// 3. While loading, show the spinner
-	if (isLoading)
-		return (
-			<FullPage>
-				<Spinner />
-			</FullPage>
-		);
-
-	// 4. If there is an authenticated user, render the app
-	if (isAuthenticated) return children;
+import RequestError from "./RequestError.jsx";
+import Button from "./Button.jsx";
+export default function ProtectedRoute({ children }) {
+ const { isAuthenticated, isStaff, isLoading, error, refetch } = useUser();
+ const { logout, isLoading: signingOut } = useLogout();
+ if (isLoading) return <Spinner />;
+ if (error) return <RequestError message="Your session could not be verified." onRetry={refetch} />;
+ if (!isAuthenticated) return <Navigate to="/login" replace />;
+ if (!isStaff) return <main style={{ padding: "4rem", maxWidth: "65rem", margin: "auto" }}><h1>Staff access is required</h1><p>Please contact an administrator to enable access for your account.</p><Button type="button" disabled={signingOut} onClick={() => logout()}>Sign out</Button></main>;
+ return children;
 }
