@@ -1,3 +1,4 @@
+import { bookingPage, positiveId } from "./validation.js";
 import {getToday} from "../utils/helpers";
 import supabase from "./supabase";
 import {PAGE_SIZE} from "../utils/constants.js";
@@ -11,13 +12,19 @@ export async function getBookings({filter, sortBy, page}) {
 			{count: "exact"},
 		);
 	// Filter:
-	if (filter) query = query.eq(filter.field, filter.value);
+	if (filter) {
+    if (filter.field !== "status" || !["unconfirmed", "checked-in", "checked-out"].includes(filter.value)) throw new Error("Choose a valid booking status.");
+    query = query.eq(filter.field, filter.value);
+  }
 	// Sort:
-	if (sortBy) query.order(sortBy.field, {ascending: sortBy.direction === "asc"});
+	if (sortBy) {
+    if (!["startDate", "totalPrice", "created_at"].includes(sortBy.field) || !["asc", "desc"].includes(sortBy.direction)) throw new Error("Choose a valid booking sort order.");
+    query = query.order(sortBy.field, {ascending: sortBy.direction === "asc"});
+  }
 	if (page) {
-		const from = (page - 1) * (PAGE_SIZE - 1);
+		const from = (bookingPage(page) - 1) * PAGE_SIZE;
 		const to = from + PAGE_SIZE - 1;
-		query.range(from, to);
+		query = query.range(from, to);
 	}
 	const {data, error, count} = await query;
 	if (error) {
@@ -31,7 +38,7 @@ export async function getBooking(id) {
 	const {data, error} = await supabase
 		.from("bookings")
 		.select("*, cabins(*), guests(*)")
-		.eq("id", id)
+		.eq("id", positiveId(id))
 		.single();
 
 	if (error) {
@@ -97,18 +104,22 @@ export async function getStaysTodayActivity() {
 }
 
 export async function updateBooking(id, obj) {
-	const {data, error} = await supabase.from("bookings").update(obj).eq("id", id).select().single();
-
-	if (error) {
-		console.error(error);
-		throw new Error("Booking could not be updated");
-	}
-	return data;
+ const allowed = ["status", "isPaid", "hasBreakfast", "extrasPrice", "totalPrice"];
+ if (!obj || !Object.keys(obj).length || Object.keys(obj).some((key) => !allowed.includes(key))) throw new Error("Choose a valid booking change.");
+ if (obj.status && !["checked-in", "checked-out"].includes(obj.status)) throw new Error("Choose a valid booking status.");
+ for (const key of ["extrasPrice", "totalPrice"]) if (obj[key] !== undefined && (!Number.isFinite(obj[key]) || obj[key] < 0)) throw new Error("Prices cannot be negative.");
+ for (const key of ["isPaid", "hasBreakfast"]) if (obj[key] !== undefined && typeof obj[key] !== "boolean") throw new Error("Choose a valid booking change.");
+ const current = await getBooking(id);
+ if (obj.status === "checked-in" && (current.status !== "unconfirmed" || obj.isPaid !== true)) throw new Error("Only a paid, unconfirmed booking can be checked in.");
+ if (obj.status === "checked-out" && current.status !== "checked-in") throw new Error("Only a checked-in booking can be checked out.");
+ const { data, error } = await supabase.from("bookings").update(obj).eq("id", positiveId(id)).eq("status", current.status).select().single();
+ if (error || !data) throw new Error("The booking could not be updated. Refresh it and try again.");
+ return data;
 }
 
 export async function deleteBooking(id) {
 	// REMEMBER RLS POLICIES
-	const {data, error} = await supabase.from("bookings").delete().eq("id", id);
+	const {data, error} = await supabase.from("bookings").delete().eq("id", positiveId(id));
 
 	if (error) {
 		console.error(error);

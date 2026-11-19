@@ -22,6 +22,7 @@ const Box = styled.div`
 	border: 1px solid var(--color-grey-100);
 	border-radius: var(--border-radius-md);
 	padding: 2.4rem 4rem;
+ @media(max-width:600px){padding:2rem;}
 `;
 
 function CheckinBooking() {
@@ -30,14 +31,19 @@ function CheckinBooking() {
 	const moveBack = useMoveBack();
 	const {booking, isLoading} = useBooking();
 	const {checkin, isCheckingIn} = useCheckin();
-	const {settings, isLoading: isLoadingSettings} = useSettings();
+	const {settings, isLoading: isLoadingSettings, error: settingsError, refetch: retrySettings} = useSettings();
 
-	useEffect(() => setConfirmPaid(booking?.isPaid ?? false), [booking]);
+	useEffect(() => {
+        setConfirmPaid(booking?.isPaid ?? false);
+        setAddBreakfast(false);
+    }, [booking?.id, booking?.isPaid]);
 
 	if (isLoading || isLoadingSettings) return <Spinner />;
 
-	const {id: bookingId, guests, totalPrice, numGuests, hasBreakfast, numNights} = booking;
-	const optionalBreakfastPrice = settings.breakfastPrice * numNights * numGuests;
+	if (settingsError || !settings) return <p role="alert">Settings could not be loaded. <Button onClick={() => retrySettings()}>Retry settings</Button></p>;
+	if (!booking) return <p role="alert">This booking could not be found.</p>;
+ const {id: bookingId, guests, totalPrice, numGuests, hasBreakfast, numNights} = booking;
+	const optionalBreakfastPrice = (settings?.breakfastPrice || 0) * numNights * numGuests;
 
 	function handleCheckin() {
 		if (!confirmPaid) return;
@@ -72,7 +78,8 @@ function CheckinBooking() {
 							setAddBreakfast(add => !add);
 							setConfirmPaid(false);
 						}}
-						id="breakfast">
+						id="breakfast"
+                        disabled={isCheckingIn}>
 						Want to add breakfast for {formatCurrency(optionalBreakfastPrice)}
 					</Checkbox>
 				</Box>
@@ -82,14 +89,13 @@ function CheckinBooking() {
 				<Checkbox
 					id="confirm"
 					checked={confirmPaid}
-					disabled={confirmPaid || isCheckingIn}
+					disabled={(booking.isPaid && !addBreakfast) || isCheckingIn}
 					onChange={() => setConfirmPaid(confirm => !confirm)}>
 					I confirm that {guests.fullName} has paid the total amount of{" "}
 					{!addBreakfast
 						? formatCurrency(totalPrice)
 						: `${formatCurrency(totalPrice + optionalBreakfastPrice)} (${formatCurrency(
 								totalPrice,
-								// eslint-disable-next-line no-mixed-spaces-and-tabs
 						  )} + ${formatCurrency(optionalBreakfastPrice)})`}
 				</Checkbox>
 			</Box>

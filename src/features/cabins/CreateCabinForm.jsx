@@ -21,7 +21,7 @@ function CreateCabinForm({cabinToEdit = {}, onCloseModal}) {
 	const {errors} = formState;
 
 	function onSubmit(data) {
-		const image = typeof data.image === "string" ? data.image : data.image[0];
+		const image = typeof data.image === "string" ? data.image : data.image?.[0] || cabinToEdit.image;
 		if (isEditSession) {
 			editCabin(
 				{newCabinData: {...data, image}, id: editId},
@@ -76,7 +76,7 @@ function CreateCabinForm({cabinToEdit = {}, onCloseModal}) {
 					type="number"
 					id="regularPrice"
 					disabled={isWorking}
-					{...register("regularPrice", {required: "This field is required"})}
+					{...register("regularPrice", {required: "This field is required", min: { value: 0, message: "Price cannot be negative." }})}
 				/>
 			</FormRow>
 
@@ -88,6 +88,7 @@ function CreateCabinForm({cabinToEdit = {}, onCloseModal}) {
 					disabled={isWorking}
 					{...register("discount", {
 						required: "This field is required",
+                        min: { value: 0, message: "Discount cannot be negative." },
 						validate: value =>
 							+value <= getValues().regularPrice || "Discount should be less than regular price",
 					})}
@@ -96,7 +97,6 @@ function CreateCabinForm({cabinToEdit = {}, onCloseModal}) {
 
 			<FormRow label="Description for cabin" error={errors?.description?.message}>
 				<Textarea
-					type="number"
 					id="description"
 					defaultValue=""
 					disabled={isWorking}
@@ -104,7 +104,7 @@ function CreateCabinForm({cabinToEdit = {}, onCloseModal}) {
 				/>
 			</FormRow>
 
-			<FormRow label="Cabin photo">
+			<FormRow label="Cabin photo" error={errors?.image?.message}>
 				<FileInput
 					id="image"
 					disabled={isWorking}

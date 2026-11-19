@@ -12,7 +12,6 @@ import {useMoveBack} from "../../hooks/useMoveBack";
 import {useBooking} from "./useBooking.js";
 import Spinner from "../../ui/Spinner.jsx";
 import {useNavigate} from "react-router-dom";
-import {HiArrowUpOnSquare} from "react-icons/hi2";
 import {useCheckout} from "../check-in-out/useCheckout.js";
 import Modal from "../../ui/Modal.jsx";
 import ConfirmDelete from "../../ui/ConfirmDelete.jsx";
@@ -22,6 +21,7 @@ import Empty from "../../ui/Empty.jsx";
 const HeadingGroup = styled.div`
 	display: flex;
 	gap: 2.4rem;
+ flex-wrap:wrap;
 	align-items: center;
 `;
 
@@ -29,7 +29,7 @@ function BookingDetail() {
 	const {booking, isLoading} = useBooking();
 	const moveBack = useMoveBack();
 	const navigate = useNavigate();
-	const {checkout} = useCheckout();
+	const {checkout, isCheckingOut} = useCheckout();
 	const {deleteBooking, isDeleting} = useDeleteBooking();
 
 	if (isLoading) return <Spinner />;
@@ -59,7 +59,7 @@ function BookingDetail() {
 				)}
 				{booking.status === "checked-in" && (
 					<Button
-						icon={<HiArrowUpOnSquare />}
+						disabled={isCheckingOut}
 						onClick={() => {
 							checkout(booking.id);
 						}}>
@@ -76,7 +76,7 @@ function BookingDetail() {
 							resourceName="booking"
 							onConfirm={() => {
 								deleteBooking(booking.id, {
-									onSettled: () => {
+									onSuccess: () => {
 										navigate(-1);
 									},
 								});

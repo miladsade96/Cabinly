@@ -4,8 +4,9 @@ import {getSettings} from "../../services/apiSettings.js";
 export function useSettings() {
 	const {
 		isLoading,
+        refetch,
 		error,
 		data: settings,
 	} = useQuery({queryKey: ["settings"], queryFn: getSettings});
-	return {isLoading, error, settings};
+	return {isLoading, error, settings, refetch};
 }
