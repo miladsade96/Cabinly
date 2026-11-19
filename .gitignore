@@ -27,3 +27,9 @@ dist-ssr
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+*.log
+/audit-*.json
+/qa/
+/coverage/
+.env*.local

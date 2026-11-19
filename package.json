@@ -6,55 +6,72 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --max-warnings 0",
     "preview": "vite preview",
     "cypress-open": "npx cypress open",
-    "cypress-cli": "npx cypress cli",
+    "cypress-cli": "cypress run",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "playWright-test": "npx playwright test",
-    "playWright-test-ui": "npx playwright test --ui"
+    "playWright-test-ui": "npx playwright test --ui",
+    "test": "vitest run",
+    "preview:offline": "vite --config tests/preview/vite.config.js"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.33.1",
+    "@supabase/supabase-js": "^2.119.2",
     "@tanstack/react-query": "^4.33.0",
     "@tanstack/react-query-devtools": "^4.33.0",
     "date-fns": "^2.30.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-error-boundary": "^4.0.12",
     "react-hook-form": "^7.46.1",
     "react-hot-toast": "^2.4.1",
     "react-icons": "^4.10.1",
-    "react-router-dom": "^6.15.0",
+    "react-router-dom": "^7.18.6",
     "recharts": "^2.11.0",
     "styled-components": "^6.0.7"
   },
   "devDependencies": {
     "@babel/core": "^7.22.17",
-    "@playwright/test": "^1.40.1",
-    "@storybook/addon-essentials": "^7.5.3",
-    "@storybook/addon-interactions": "^7.5.3",
-    "@storybook/addon-links": "^7.5.3",
-    "@storybook/addon-onboarding": "^1.0.8",
-    "@storybook/addon-themes": "^7.5.3",
-    "@storybook/blocks": "^7.5.3",
-    "@storybook/react": "^7.5.3",
-    "@storybook/react-vite": "^7.5.3",
-    "@storybook/testing-library": "^0.2.2",
+    "@playwright/test": "^1.65.1",
     "@types/node": "^20.8.10",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
-    "@vitejs/plugin-react": "^4.0.3",
-    "cypress": "^13.1.0",
-    "eslint": "^8.45.0",
-    "eslint-plugin-react": "^7.32.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.3",
-    "eslint-plugin-storybook": "^0.6.15",
+    "@vitejs/plugin-react": "^6.3.0",
+    "cypress": "^16.3.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.4.26",
     "prettier": "^3.0.2",
     "prop-types": "^15.8.1",
-    "storybook": "^7.5.3",
-    "vite": "^4.4.5"
+    "vite": "^8.3.8",
+    "vitest": "^4.1.12",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "jsdom": "^27.0.0",
+    "globals": "^16.5.0",
+    "@eslint/js": "^9.39.5",
+    "storybook": "10.6.7",
+    "@storybook/react-vite": "10.6.7",
+    "@storybook/addon-docs": "10.6.7",
+    "@storybook/addon-links": "10.6.7",
+    "@storybook/addon-themes": "10.6.7",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "overrides": {
+    "sucrase": {
+      "glob": "^14.0.6"
+    },
+    "minimatch@3": {
+      "brace-expansion": "^1.1.22"
+    },
+    "@joshwooding/vite-plugin-react-docgen-typescript": {
+      "glob": "^14.0.6"
+    }
   }
 }
